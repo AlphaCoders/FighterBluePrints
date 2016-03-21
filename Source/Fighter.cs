@@ -60,8 +60,6 @@ public class Fighter
     #endregion
     
 }
-func01(int n)
-{
-	
-}
+func02
+
 
