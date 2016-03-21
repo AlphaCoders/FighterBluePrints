@@ -60,7 +60,7 @@ public class Fighter
     #endregion
     
 }
-function01(int n)
+func01(int n)
 {
 	
 }
