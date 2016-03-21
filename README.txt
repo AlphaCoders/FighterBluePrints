@@ -1,10 +1,10 @@
 Collaboration Standards
 
 Never edit master branch directly
-Edit your respective branch and create pull request
+Edit dev and create pull request
 Discussion is held before merging into master
-If you edit master directly then the old branches get into merge conflicts
-If you create pull request then it is easy to revert the merge
+Merge conflicts occur if afore mentioned standards are violated
+
 
 Coding Standards
 
@@ -17,7 +17,7 @@ First word should be in lower case and other words should have their first chara
 Ex: getFighterDetails
 
 Use #region <regionname> and #endregion to segregate the class code
-test01
+test002
 
 
 
