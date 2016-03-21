@@ -60,7 +60,7 @@ public class Fighter
     #endregion
     
 }
-
+fun01
 
 
 
