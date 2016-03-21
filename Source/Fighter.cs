@@ -60,6 +60,11 @@ public class Fighter
     #endregion
     
 }
-func02
+
+
+
+
+
+
 
 
