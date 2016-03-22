@@ -11,7 +11,7 @@ public class Constants
     
     #region Constructors
     
-    Constants( int _wid )
+    public Constants( int _wid )
     {
         wid = _wid ;
         health = 0 ;
