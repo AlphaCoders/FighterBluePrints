@@ -32,7 +32,7 @@ public class Fighter
     
     #region Constructors
     
-    Fighter( int _id , int _gid , int _wid , int _x , int _y , int _z )
+    public Fighter( int _id , int _gid , int _wid , int _x , int _y , int _z )
     {
 		id = _id ;
 		gid = _gid ;
