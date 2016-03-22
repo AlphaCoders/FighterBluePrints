@@ -14,6 +14,7 @@ public class Fighter
     public int attack ;      // Weapon Attack
     public int handattack ;  // Hand Attack
     public int areaattack ;  // Area Attack
+    public int radius ;      // Area Attack Radius
     public int speed ;       // Movement Speed
     public int mode ;        // Idle[0] , Walk[1] , Attack[2] , Hurt[3] , Die[4]
     
@@ -47,14 +48,15 @@ public class Fighter
     
     #region Managing Methods
     
-    giveWeapon( int _wid )
+    private void giveWeapon( int _wid )
     {
-    	Constants c = new Constants();
-    	health = c.health( _wid );
-    	attack = c.attack( _wid );
-    	handattack = c.handattack( _wid );
-    	areaattack = c.areaattack( _wid );
-    	speed = c.speed( _wid );
+    	Constants c = new Constants( _wid );
+    	health = c.getHealth();
+    	attack = c.getAttack();
+    	handattack = c.getHandattack();
+    	areaattack = c.getAreaattack();
+    	radius = c.getRadius();
+    	speed = c.getSpeed();
     }
     
     #endregion
