@@ -27,6 +27,10 @@ public class Fighter
     public int ex ;          // enemy X Cor
     public int ey ;          // enemy Y Cor
     public int ez ;          // enemy Z Cor
+    public int teid ;        // temporary enemy in betwen fighter and enemy
+    public int tex ;         // temporary enemy X Cor
+    public int tey ;         // temporary enemy Y Cor
+    public int tez ;         // temporary enemy Z Cor
     
     #endregion
     
