@@ -1,4 +1,5 @@
-public class World
+
+public class Begin
 {
     #region Init
     
@@ -9,7 +10,7 @@ public class World
     
     #region Constructors
     
-    public World()
+    public Begin()
     {
         grid = new int[500,500] ;
         gtime = 0 ;
