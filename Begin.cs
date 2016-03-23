@@ -3,8 +3,11 @@ public class Begin
 {
     #region Init
     
-    public int[,] grid ;    // World's Grid 
-    public int gtime ;      // Game Time
+    public int gtime ;                           // Game Time
+    public int fps ;                             // tmp Frame Number
+    public int maxFps ;                          // Max FPS
+    public int fastFactor ;                      // Ex: x 2 times the original speed
+    public Dictionary<int,Fighter> Units         // Holds ( id , Fighter ) Relationship
     
     #endregion 
     
@@ -12,18 +15,30 @@ public class Begin
     
     public Begin()
     {
-        grid = new int[500,500] ;
+        Units = new Dictionary<int,Fighter>();
+        // Here we must add our capital
+        // Also add enemy capitals as Static Units
         gtime = 0 ;
+        fps = 0 ;
     }
     
     #endregion
     
-    #region Update
+    #region Graphics Engine Screen Update Method
     
     public void Update() 
     {
+        if ( fps == maxFps / fastFactor ) // Equivalent to 1 second in gametime
+        {
+            gtime++ ;
+            fps = 0 ;
+        }
+        
         // Here we make the movement and attacks and health deductions
-        gtime++ ;
+        
+        
+        fps++ ;
+        
     }
     
     #endregion
