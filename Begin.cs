@@ -20,7 +20,7 @@ public class Begin
     
     #region Update
     
-    public void Update()
+    public void Update() 
     {
         // Here we make the movement and attacks and health deductions
         gtime++ ;
