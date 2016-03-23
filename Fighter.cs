@@ -16,6 +16,7 @@ public class Fighter
     public int areaattack ;  // Area Attack
     public int radius ;      // Area Attack Radius
     public int speed ;       // Movement Speed
+    public int delay ;       // Delay betwen attacks
     public int mode ;        // Idle[0] , Walk[1] , Attack[2] , Hurt[3] , Die[4]
     
     #endregion
@@ -61,6 +62,7 @@ public class Fighter
     	areaattack = c.getAreaattack();
     	radius = c.getRadius();
     	speed = c.getSpeed();
+    	delay = c.getDelay();
     }
     
     #endregion
