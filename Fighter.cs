@@ -16,6 +16,7 @@ public class Fighter
     public int areaattack ;  // Area Attack
     public int radius ;      // Area Attack Radius
     public int speed ;       // Movement Speed
+    public int delay ;       // Delay betwen attacks
     public int mode ;        // Idle[0] , Walk[1] , Attack[2] , Hurt[3] , Die[4]
     
     #endregion
@@ -27,6 +28,10 @@ public class Fighter
     public int ex ;          // enemy X Cor
     public int ey ;          // enemy Y Cor
     public int ez ;          // enemy Z Cor
+    public int teid ;        // temporary enemy in betwen fighter and enemy
+    public int tex ;         // temporary enemy X Cor
+    public int tey ;         // temporary enemy Y Cor
+    public int tez ;         // temporary enemy Z Cor
     
     #endregion
     
@@ -57,6 +62,7 @@ public class Fighter
     	areaattack = c.getAreaattack();
     	radius = c.getRadius();
     	speed = c.getSpeed();
+    	delay = c.getDelay();
     }
     
     #endregion

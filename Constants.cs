@@ -8,6 +8,7 @@ public class Constants
     private int areaattack ;
     private int radius ;
     private int speed ;
+    private int delay ;
     
     #region Constructors
     
@@ -20,6 +21,7 @@ public class Constants
         areaattack = 0 ;
         radius = 0 ;
         speed = 0 ;
+        delay = 0 ;
         if ( wid <= 0 )
         {
             return ; // Err Log
@@ -30,6 +32,7 @@ public class Constants
             attack = 60 ;
             handattack = attack ;
             speed = 5 ;
+            delay = 1 ;
         }
         else if ( wid == 2 ) // Archers
         {
@@ -37,6 +40,7 @@ public class Constants
             attack = 20 ;
             handattack = 10 ;
             speed = 7 ;
+            delay = 5 ;
         }
         else if ( wid == 3 ) // Cavalry
         {
@@ -44,6 +48,7 @@ public class Constants
             attack = 150 ;
             handattack = attack ;
             speed = 11 ;
+            delay = 1 ;
         }
         else 
         {
@@ -84,6 +89,11 @@ public class Constants
     public int getSpeed ()
     {
         return speed ;
+    }
+    
+    public int getDelay()
+    {
+        return delay ;
     }
 
     #endregion
