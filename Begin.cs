@@ -19,6 +19,11 @@ public class Begin
     
     public Begin()
     {
+        gtime = 0 ;
+        fps = 0 ;
+        maxFps = 30 ;
+        fastFactor = 1 ;
+        
         allUnits = new Dictionary<int,Fighter>();
         groundWidth = 700 ;
         groundLength = 1200 ;
@@ -27,8 +32,7 @@ public class Begin
         
         // Here we must add our capital
         // Also add enemy capitals as Static Units
-        gtime = 0 ;
-        fps = 0 ;
+      
     }
     
     #endregion
