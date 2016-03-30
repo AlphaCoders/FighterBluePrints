@@ -7,6 +7,7 @@ public class Fighter
     public int id ;          // Unique ID
     public int gid ;         // Group ID 
     public int wid ;         // Weapon ID
+    public int pid ;         // Player ID
     public int x ;           // Fighters X Cor
     public int y ;           // Fighters Y Cor
     public int z ;           // Fighters Z Cor
