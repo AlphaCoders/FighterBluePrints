@@ -5,33 +5,71 @@ using System.Collections.Generic ;
 
 public class Test
 {
-	public static void printer( Dictionary<int,Fighter> _allUnits )
+	public static void printer( SortedDictionary<int,Fighter> _allUnits )
 	{
-		List<int> list = new List<int>( _allUnits.Keys );
-		list.Sort();
-		Fighter ft ; 
-		foreach ( int key in list )
+		foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
 		{
-			_allUnits.TryGetValue(key,out ft) ;
-		    Console.WriteLine( ft.ToString() );
+		    Console.WriteLine( entry.Value.ToString() );
 		}
 
 	}
+	
+	public static void gridprint( int[,,] _grid )
+	{
+		String pad ; 
+		int u ;
+		for ( int i = 0 ; i < _grid.GetLength(0) ; i++ )
+		{
+			for ( int j = 0 ; j < _grid.GetLength(1) ; j++ )
+			{
+				if ( _grid[i,j,0] == 0 ) 
+				{
+					pad = "...0" ; 
+				}
+				else 
+				{
+					pad = ""+_grid[i,j,0] ; 
+				}
+				pad += "," ;
+				pad += _grid[i,j,1] ;
+				u = (""+_grid[i,j,1]).Length ;
+				for ( int k = 0 ; k < (4-u) ; k++ )
+				{
+					pad += ".";
+				}
+			
+					Console.Write(  pad + " " );
+			}
+			Console.WriteLine();
+		}
+		
+		
+	}
+	
 	public static void Main()
 	{
 		Begin b = new Begin();
 		
+		//printer( b.allUnits );
+		gridprint( b.grid );
 		
-		printer( b.allUnits );
+		foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+		{
+			if ( entry.Value.pid == 1 )
+			{
+		    	entry.Value.ex = 13 ;
+		    	entry.Value.ey = 1 ;
+		    	entry.Value.ez = 0 ; 
+			}
+		}
 		
 		
-		/*
-		int limit = 10 ;
+		int limit = 50 ;
 		while ( limit-- > 0  )
 		{
 			b.Update();
 		}
-		*/
+		
 		
 	}
 }
@@ -41,15 +79,15 @@ public class Begin
 {
     #region Init
     
-    public int gtime ;                           // Game Time
-    public int fps ;                             // tmp Frame Number
-    public int maxFps ;                          // Max FPS
-    public int fastFactor ;                      // Ex: x 2 times the original speed
-    public Dictionary<int,Fighter> allUnits ;    // Holds ( id , Fighter ) Relationship
-    public int groundWidth ;                     // Battle Ground Width
-    public int groundLength ;                    // Battle Ground Length
-    public int[,,] grid ;                        // 3D Maxtrix ...(x,y,0) = id at x,y and (x,y,1) = gtime at x,y
-    public int[,,] arrows ;                      // Same as grid but (x,y,0) = Flag(0/1) and (x,y,1) = gtime
+    public int gtime ;                               // Game Time
+    public int fps ;                                 // tmp Frame Number
+    public int maxFps ;                              // Max FPS
+    public int fastFactor ;                          // Ex: x 2 times the original speed
+    public SortedDictionary<int,Fighter> allUnits ;  // Holds ( id , Fighter ) Relationship
+    public int groundWidth ;                         // Battle Ground Width
+    public int groundLength ;                        // Battle Ground Length
+    public int[,,] grid ;                            // 3D Maxtrix ...(x,y,0) = id at x,y and (x,y,1) = gtime at x,y
+    public int[,,] arrows ;                          // Same as grid but (x,y,0) = Flag(0/1) and (x,y,1) = gtime
     
     #endregion 
     
@@ -63,14 +101,14 @@ public class Begin
     	return (int)(DateTime.UtcNow - epochStart).Ticks*100 ;
 	}
     
-    public int Test_generateid()
+    public int Test_generateid( int _pid )
     {
     	Random r = new Random( UnixTime() );
     	int tmp_id ;
-    	tmp_id = r.Next( 1111 , 9999 ); 
+    	tmp_id = (_pid*1000) + r.Next( 111 , 999 ); 
     	while ( allUnits.ContainsKey(tmp_id) )
     	{
-    		tmp_id = r.Next( 1111 , 9999 ); 
+    		tmp_id = (_pid*1000)+ r.Next( 111 , 999 ); 
     	}
     	return tmp_id ;
     }
@@ -94,12 +132,17 @@ public class Begin
     			switch ( c )
     			{
 					case 'p' :
-    					grid[i,j,0] = Test_generateid() ;
+    					grid[i,j,0] = Test_generateid(1) ;
     					Test_addFighter( grid[i,j,0] , 1 , 1 , i , j );// _id , _wid = 1 pike , 2 arch , 3 cav , _pid 
     					grid[i,j,1] = gtime ;
     					break ; 
+					case 'a' :
+    					grid[i,j,0] = Test_generateid(1) ;
+    					Test_addFighter( grid[i,j,0] , 2 , 1 , i , j );// _id , _wid = 1 pike , 2 arch , 3 cav , _pid 
+    					grid[i,j,1] = gtime ;
+    					break ;
 					case 'e' :
-						grid[i,j,0] = Test_generateid() ;
+						grid[i,j,0] = Test_generateid(2) ;
 						Test_addFighter( grid[i,j,0] , 3 , 2 , i , j );
     					grid[i,j,1] = gtime ;
     					break ; 
@@ -123,7 +166,7 @@ public class Begin
         maxFps = 30 ;
         fastFactor = 1 ;
         
-        allUnits = new Dictionary<int,Fighter>();
+        allUnits = new SortedDictionary<int,Fighter>();
         groundWidth = 12 ;
         groundLength = 15 ;
         grid = new int[groundLength,groundWidth,2] ;
@@ -134,7 +177,10 @@ public class Begin
         
         board = 
         "............" + // Player 1 
-        "........p..." +
+        "............" +
+        ".....aaaa..." +
+        ".....pppp..." +
+        ".....pppp..." +
         "............" +
         "............" +
         "............" +
@@ -142,11 +188,8 @@ public class Begin
         "............" +
         "............" +
         "............" +
-        "............" +
-        "............" +
-        "............" +
-        "............" +
-        "..e........." +
+        ".eeee......." +
+        "..ee........" +
         "............"   // Player 2 
         ;
         
@@ -161,11 +204,80 @@ public class Begin
     {
         if ( fps == maxFps / fastFactor ) // Equivalent to 1 second in gametime
         {
+        	
+        	// Make movement 
+        	Dictionary<int,int> counts = new Dictionary<int,int>() ;  // _gid , number of units belonging to gid
+        	Dictionary<int,int> centroids_X  = new Dictionary<int,int>() ; // _gid , _centeroid_XCOR
+        	Dictionary<int,int> centroids_Y  = new Dictionary<int,int>() ; // _gid , _centeroid_YCOR 
+        	Dictionary<int,int> centroids_Z  = new Dictionary<int,int>() ; // _gid , _centeroid_ZCOR 
+        	int tgid ;
+        	foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+        	{
+        		tgid = entry.Value.gid ;
+        		if ( counts.ContainsKey ( tgid ) )
+        		{
+        			centroids_X[ tgid ] = ((centroids_X[ tgid ]*counts[tgid]) + entry.Value.x )/ (counts[tgid]+1);
+        			centroids_Y[ tgid ] = ((centroids_Y[ tgid ]*counts[tgid]) + entry.Value.y )/ (counts[tgid]+1);
+        			centroids_Z[ tgid ] = ((centroids_Z[ tgid ]*counts[tgid]) + entry.Value.z )/ (counts[tgid]+1);
+        			counts[ tgid ] += 1 ; 
+        		}
+        		else 
+        		{
+        			counts.Add( tgid , 1 ) ; 
+        			centroids_X.Add( tgid , entry.Value.x ) ;
+        			centroids_Y.Add( tgid , entry.Value.y ) ;
+        			centroids_Z.Add( tgid , entry.Value.z ) ;
+        			
+        		}
+        	}
+        	
+        	foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+			{
+				if ( entry.Value.health < 1 )
+				{
+					_allUnits.Remove( entry.Value.id ); // Dead Unit
+					continue ;
+				}
+				if ( entry.Value.eid > -1 )
+				{
+			    	entry.Value.mode = 2 ; //attack animation triggered
+				}
+				else if ( entry.Value.egid > -1 )
+				{
+					entry.Value.ex = centroids_X[ entry.Value.egid ] ;
+					entry.Value.ey = centroids_Y[ entry.Value.egid ] ;
+					entry.Value.ez = centroids_Z[ entry.Value.egid ] ;
+					entry.Value.mode = 1 ; // walk to ex , ey , ez 
+				}
+				else if ( entry.Value.ex > -1 || entry.Value.ey > -1 || entry.Value.ez > -1 )
+				{
+					// unit is assigned to move to ex , ey , ez
+					entry.Value.mode = 1 ; // walk to ex , ey , ez 
+				}
+				else 
+				{
+					entry.Value.mode = 0 ;// scount or idle mode
+				}
+				
+				// Move
+				if ( entry.Value.mode == 1 )
+				{
+					// check for meele attack
+					
+					
+				}
+				
+				//Attack
+				if ( entry.Value.mode == 2 )
+				{
+					_allUnits[ entry.Value.eid ].health -= entry.Value.attack ; 
+				}
+			}
+        	
+        	
             gtime++ ;
             fps = 0 ;
         }
-        
-        // Here we make the movement and attacks and health deductions
         
         
         fps++ ;
@@ -211,6 +323,7 @@ public class Fighter
     public int tex ;         // temporary enemy X Cor
     public int tey ;         // temporary enemy Y Cor
     public int tez ;         // temporary enemy Z Cor
+
     
     #endregion
     
@@ -228,6 +341,16 @@ public class Fighter
 		mode = 0 ;
 		angle = 0 ;
 		giveWeapon( _wid );
+		eid = -1 ; 
+		egid = -1 ;
+		ex = -1 ;
+		ey = -1 ;
+		ez = -1 ;
+		teid = -1 ;
+		tx = -1 ;
+		ty = -1 ;
+		tz = -1 ;
+		
     }
     
     #endregion
@@ -251,15 +374,15 @@ public class Fighter
     public override String ToString()
     {
     	return String.Format(
-    		"     ID : {0} \n " +
-        //  "    GID : {1} \n " +
-    		"    WID : {2} \n " +
-    		"    PID : {3} \n " +
-    		"      X : {4} \n " +
-    		"      Y : {5} \n " +
-    	//  "      Z : {6} \n " +
-    		" HEALTH : {7} \n " +
-    		" ATTACK : {8} \n " +
+    		"     ID : {0} \t " +
+        //  "    GID : {1} \t " +
+    		"    WID : {2} \t " +
+    		"    PID : {3} \t " +
+    		"      X : {4} \t " +
+    		"      Y : {5} \t " +
+    	//  "      Z : {6} \t " +
+    		" HEALTH : {7} \t " +
+    		" ATTACK : {8} \t " +
     	"",id,gid,wid,pid,x,y,z,health,attack);
     }
     
@@ -314,7 +437,7 @@ public class Constants
         else if ( wid == 3 ) // Cavalry
         {
             health = 700 ;
-            attack = 150 ;
+            attack = 90 ;
             handattack = attack ;
             speed = 11 ;
             delay = 1 ;
