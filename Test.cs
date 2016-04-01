@@ -1,5 +1,3 @@
-// Contains IDEONE code
-
 using System;
 using System.Collections.Generic ; 
 
