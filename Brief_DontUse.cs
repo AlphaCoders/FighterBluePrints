@@ -14,10 +14,12 @@ public class Test
 
 	}
 	
-	public static void gridprint( int[,,] _grid )
+	public static void gridprint( int[,,] _grid , int _gtime , SortedDictionary<int,Fighter> _allUnits )
 	{
+		Console.WriteLine("Printing Grid at time :"+_gtime);
 		String pad ; 
 		int u ;
+		int v ;
 		for ( int i = 0 ; i < _grid.GetLength(0) ; i++ )
 		{
 			for ( int j = 0 ; j < _grid.GetLength(1) ; j++ )
@@ -30,19 +32,39 @@ public class Test
 				{
 					pad = ""+_grid[i,j,0] ; 
 				}
+				
+				/*
+				v = _grid[i,j,1] ;
 				pad += "," ;
-				pad += _grid[i,j,1] ;
-				u = (""+_grid[i,j,1]).Length ;
-				for ( int k = 0 ; k < (4-u) ; k++ )
+				pad += v ;
+				u = (""+v).Length ;
+				for ( int k = 0 ; k < (3-u) ; k++ )
 				{
 					pad += ".";
 				}
-			
-					Console.Write(  pad + " " );
+				*/
+				
+				if ( _grid[i,j,0] == 0 )
+				{
+					v = 0 ; 
+				}
+				else 
+				{
+					v = _allUnits[ _grid[i,j,0] ].health ;
+				}
+				pad += "," ;
+				pad += v ;
+				u = (""+v).Length ;
+				for ( int k = 0 ; k < (3-u) ; k++ )
+				{
+					pad += ".";
+				}
+				
+				Console.Write(  pad + " " );
 			}
 			Console.WriteLine();
 		}
-		
+		Console.WriteLine("----------------------------------End at gtime:"+_gtime);
 		
 	}
 	
@@ -51,11 +73,11 @@ public class Test
 		Begin b = new Begin();
 		
 		//printer( b.allUnits );
-		gridprint( b.grid );
+		gridprint( b.grid , b.gtime , b.allUnits );
 		
-		foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+		foreach ( KeyValuePair<int,Fighter> entry in b.allUnits )
 		{
-			if ( entry.Value.pid == 1 )
+			if ( entry.Value.pid == 1 && entry.Value.x > 2 )
 			{
 		    	entry.Value.ex = 13 ;
 		    	entry.Value.ey = 1 ;
@@ -63,8 +85,8 @@ public class Test
 			}
 		}
 		
-		
-		int limit = 50 ;
+		int cycles = 9 ;
+		int limit = 10 + ( 40 * cycles ) ;
 		while ( limit-- > 0  )
 		{
 			b.Update();
@@ -77,7 +99,8 @@ public class Test
 
 public class Begin
 {
-    #region Init
+	// {
+    #region Init 
     
     public int gtime ;                               // Game Time
     public int fps ;                                 // tmp Frame Number
@@ -87,7 +110,7 @@ public class Begin
     public int groundWidth ;                         // Battle Ground Width
     public int groundLength ;                        // Battle Ground Length
     public int[,,] grid ;                            // 3D Maxtrix ...(x,y,0) = id at x,y and (x,y,1) = gtime at x,y
-    public int[,,] arrows ;                          // Same as grid but (x,y,0) = Flag(0/1) and (x,y,1) = gtime
+    public SortedDictionary<int,Arrow> allArrows ;   // Holds ( arrowID , arrowObject) Relationship
     
     #endregion 
     
@@ -148,7 +171,7 @@ public class Begin
     					break ; 
 					default :
 						grid[i,j,0] = 0 ;
-						grid[1,j,1] = gtime ;
+						grid[1,j,1] = 0 ;
 						break ;
     			}
     		}
@@ -163,47 +186,64 @@ public class Begin
     {
         gtime = 0 ;
         fps = 0 ;
-        maxFps = 30 ;
+        maxFps = 40 ;
         fastFactor = 1 ;
         
         allUnits = new SortedDictionary<int,Fighter>();
-        groundWidth = 12 ;
+        groundWidth = 9 ;
         groundLength = 15 ;
         grid = new int[groundLength,groundWidth,2] ;
-        arrows = new int[groundLength,groundWidth,2] ;
-        
+        allArrows = new SortedDictionary<int,Arrow>();
         // Here we must add our capital
         // Also add enemy capitals as Static Units
         
         board = 
-        "............" + // Player 1 
-        "............" +
-        ".....aaaa..." +
-        ".....pppp..." +
-        ".....pppp..." +
-        "............" +
-        "............" +
-        "............" +
-        "............" +
-        "............" +
-        "............" +
-        "............" +
-        ".eeee......." +
-        "..ee........" +
-        "............"   // Player 2 
+        "........." + // Player 1 
+        "........." +
+        "..a......" +
+        "........." +
+        "....aaaa." +
+        "....pppp." +
+        "....pppp." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        ".eeee...." +
+        "..ee....." +
+        "........."   // Player 2 
         ;
+        
+        gtime = 1 ; 
         
       	Test_populategrid( board );
     }
     
     #endregion
-    
+    //}
     #region Graphics Engine Screen Update Method
     
     public void Update() 
     {
         if ( fps == maxFps / fastFactor ) // Equivalent to 1 second in gametime
         {
+        	Console.WriteLine( "Cycle Begins" );
+        	List<int> deadUnits = new List<int>() ;
+        	foreach ( KeyValuePair<int,Fighter> entry in allUnits )
+        	{
+        		if ( entry.Value.health < 1 )
+				{
+					deadUnits.Add( entry.Value.id ); // Registering Casualities = Dead Units
+				}
+        	}
+        	foreach( int deadUnitID in deadUnits )
+        	{
+        		grid[ allUnits[deadUnitID].x , allUnits[deadUnitID].y , 0 ] = 0 ;
+				grid[ allUnits[deadUnitID].x , allUnits[deadUnitID].y , 1 ] = 0 ;// Freeing grid space
+        		allUnits.Remove( deadUnitID );// Cleaning up the Dead
+        		// Change animation to death animation
+        	}
         	
         	// Make movement 
         	Dictionary<int,int> counts = new Dictionary<int,int>() ;  // _gid , number of units belonging to gid
@@ -211,7 +251,7 @@ public class Begin
         	Dictionary<int,int> centroids_Y  = new Dictionary<int,int>() ; // _gid , _centeroid_YCOR 
         	Dictionary<int,int> centroids_Z  = new Dictionary<int,int>() ; // _gid , _centeroid_ZCOR 
         	int tgid ;
-        	foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+        	foreach ( KeyValuePair<int,Fighter> entry in allUnits )
         	{
         		tgid = entry.Value.gid ;
         		if ( counts.ContainsKey ( tgid ) )
@@ -223,24 +263,29 @@ public class Begin
         		}
         		else 
         		{
-        			counts.Add( tgid , 1 ) ; 
         			centroids_X.Add( tgid , entry.Value.x ) ;
         			centroids_Y.Add( tgid , entry.Value.y ) ;
         			centroids_Z.Add( tgid , entry.Value.z ) ;
-        			
+        			counts.Add( tgid , 1 ) ; 
         		}
         	}
         	
-        	foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+        	
+        	foreach ( KeyValuePair<int,Fighter> entry in allUnits ) // Unit Processing
 			{
-				if ( entry.Value.health < 1 )
-				{
-					_allUnits.Remove( entry.Value.id ); // Dead Unit
-					continue ;
-				}
 				if ( entry.Value.eid > -1 )
 				{
 			    	entry.Value.mode = 2 ; //attack animation triggered
+			    	if (allUnits.ContainsKey( entry.Value.eid ))
+			    	{
+			    		entry.Value.ex = allUnits[ entry.Value.eid ].x ;
+			    		entry.Value.ey = allUnits[ entry.Value.eid ].y ;
+			    		entry.Value.ez = allUnits[ entry.Value.eid ].z ;
+			    	}
+			    	else
+			    	{
+			    		entry.Value.mode = 0 ;
+			    	}
 				}
 				else if ( entry.Value.egid > -1 )
 				{
@@ -254,34 +299,170 @@ public class Begin
 					// unit is assigned to move to ex , ey , ez
 					entry.Value.mode = 1 ; // walk to ex , ey , ez 
 				}
-				else 
-				{
+				else {
 					entry.Value.mode = 0 ;// scount or idle mode
 				}
 				
-				// Move
-				if ( entry.Value.mode == 1 )
+				if ( entry.Value.mode == 0 )
 				{
-					// check for meele attack
 					
+					int ax , ay ; // Archer X , Y
+					int wx , wy ; // Watch X , Y
+					ax = entry.Value.x ;
+					ay = entry.Value.y ;
+					int prange = entry.Value.range ; // Generally 12 
+					int nrange = -prange ; // -12 
+					bool should_search = true ; 
+					for ( int i = nrange ; i < prange && should_search ; i++ ){
+						for ( int j = nrange ; j < prange && should_search ; j++ ){
+							wx = ax + i ;
+							wy = ay + j ;
+							if ( wx >= 0 && wx < groundLength && wy >= 0 && wy < groundWidth )
+							{
+								if ( grid[ wx , wy , 1 ] >= gtime && allUnits.ContainsKey(grid[ wx , wy , 0 ]) && allUnits[grid[ wx , wy , 0 ]].tid != entry.Value.tid  )
+								{
+									if ( allUnits[grid[ wx , wy , 0 ]].health < 1 )
+									{
+										// No over kill
+									}
+									else
+									{
+										if ( entry.Value.wid % 2 == 0 ) // Ranged Units
+										{
+											if ( ! allArrows.ContainsKey( entry.Value.id ) )// Check if i already had an arrow registered on my id
+											{
+												// new Arrow ( _id , _eid , _dmga )
+												Arrow arw = new Arrow( entry.Value.id , grid[ wx , wy , 0 ].id , entry.Value.attack );  
+												allArrows.Add( arw );
+											}
+											Console.WriteLine( "Arrow Released from id:"+entry.Value.id+" onto:("+wx+","+wy+")" );
+											
+										}
+										else 
+										{
+											entry.Value.ex = allUnits[grid[ wx , wy , 0 ]].x ; // Aggressive
+											entry.Value.ey = allUnits[grid[ wx , wy , 0 ]].y ;
+											entry.Value.ez = allUnits[grid[ wx , wy , 0 ]].z ;
+										}
+										should_search = false ; // Scout Successfull .. so exit loops
+									}
+								}
+							}
+						}
+					}
 					
 				}
+				
+					
+				bool can_move = false ; 
+				int shortest_distance = int.MaxValue ;
+				int shortest_x = -1 ;
+				int shortest_y = -1 ;
+				
+				// check for meele attack
+				int ux , uy ;
+				int dx , dy ;
+				ux = entry.Value.x ;
+				uy = entry.Value.y ;
+				dx = -1 ; dy = -1 ; 
+				int[] DX = new int[] { -1 , 0 , 1 , -1 , 1 , -1 ,  0 ,  1 } ;
+				int[] DY = new int[] {  1 , 1 , 1 ,  0 , 0 , -1 , -1 , -1 } ;
+				
+				
+				for ( int i = 0 ; i < DX.Length ; i++ )
+				{
+					dx = ux + DX[i] ;
+					dy = uy + DY[i] ;	
+					if ( dx >= 0 && dx < groundLength && dy >= 0 && dy < groundWidth )
+					{
+						if ( grid[ dx , dy , 1 ] >= gtime )
+						{
+							if ( allUnits.ContainsKey( grid[ dx , dy , 0 ] ) && allUnits[grid[ dx , dy , 0 ]].tid != entry.Value.tid )// Enemy
+							{
+								// Marking enemy as enemy
+								entry.Value.mode = 2 ;
+								entry.Value.eid = grid[ dx , dy , 0 ] ;
+								// Marking myself as enemy to my enemy
+								if ( allUnits[ entry.Value.eid ].mode == 0 )
+								{
+									allUnits[ entry.Value.eid ].mode = 1 ; // Taunt the enemy to attack ; works for archers ;-)
+									allUnits[ entry.Value.eid ].ex = entry.Value.x ;
+									allUnits[ entry.Value.eid ].ey = entry.Value.y ;
+									allUnits[ entry.Value.eid ].ez = entry.Value.z ;
+								}
+								break ; 
+							}
+							else // Friendly
+							{
+								// Friendly Block ...Ask To Make Way...Version2.0..Not Now	
+							}
+						}
+						else {
+							can_move = true ;
+							int distance = calculateDistanceSquare( dx , dy , entry.Value.ex , entry.Value.ey );
+							if ( distance < shortest_distance )
+							{
+								shortest_distance = distance ;
+								shortest_x = dx ;
+								shortest_y = dy ;
+							}
+						}
+					}
+				}
+				
+				
+				if ( entry.Value.mode == 1 && can_move )
+				{
+					grid[ entry.Value.x , entry.Value.y , 0 ] = 0 ;
+					grid[ entry.Value.x , entry.Value.y , 1 ] = 0 ; // Making Room For Other Units
+					entry.Value.x = shortest_x ;
+					entry.Value.y = shortest_y ;
+				}
+				
 				
 				//Attack
 				if ( entry.Value.mode == 2 )
 				{
-					_allUnits[ entry.Value.eid ].health -= entry.Value.attack ; 
+					if ( allUnits.ContainsKey(entry.Value.eid) ) // Checking if enemy is alive
+					{
+						allUnits[ entry.Value.eid ].health -= entry.Value.attack ; 
+					}
+					else {
+						entry.Value.eid = -1 ; // Enemy Got Killed
+					}
+					
+					if ( ! counts.ContainsKey( entry.Value.egid ) )
+					{
+						entry.Value.egid = -1 ; // Enemy Group is dead
+					}
+					
+					
 				}
+				
+				grid[ entry.Value.x , entry.Value.y , 0 ] = entry.Value.id ;
+				grid[ entry.Value.x , entry.Value.y , 1 ] = gtime+1 ; // Finished Processing Unit
 			}
+        	
         	
         	
             gtime++ ;
             fps = 0 ;
+            
+            Test.gridprint( grid , gtime , allUnits );// helper to be removed later
         }
         
         
         fps++ ;
         
+    }
+    
+    #endregion
+    
+    #region Helper Methods
+    
+    public int calculateDistanceSquare( int x1 , int y1 , int x2 , int y2 )
+    {
+    	return ((x2-x1)*(x2-x1)) + ((y2-y1)*(y2-y1)) ;
     }
     
     #endregion
@@ -297,9 +478,11 @@ public class Fighter
     public int gid ;         // Group ID 
     public int wid ;         // Weapon ID
     public int pid ;         // Player ID
+    public int tid ;         // Team ID
     public int x ;           // Fighters X Cor
     public int y ;           // Fighters Y Cor
     public int z ;           // Fighters Z Cor
+    public int range  ;      // Fighters Sight Range
     public int health ;      // Health or Hitpoints
     public int attack ;      // Weapon Attack
     public int handattack ;  // Hand Attack
@@ -319,10 +502,7 @@ public class Fighter
     public int ex ;          // enemy X Cor
     public int ey ;          // enemy Y Cor
     public int ez ;          // enemy Z Cor
-    public int teid ;        // temporary enemy in betwen fighter and enemy
-    public int tex ;         // temporary enemy X Cor
-    public int tey ;         // temporary enemy Y Cor
-    public int tez ;         // temporary enemy Z Cor
+    
 
     
     #endregion
@@ -346,11 +526,11 @@ public class Fighter
 		ex = -1 ;
 		ey = -1 ;
 		ez = -1 ;
-		teid = -1 ;
-		tx = -1 ;
-		ty = -1 ;
-		tz = -1 ;
-		
+		tid = 1 ; // By default Team1
+		if ( _pid % 2 == 0 )
+		{
+			tid = 2 ; // All even pids to Team2
+		}
     }
     
     #endregion
@@ -360,6 +540,7 @@ public class Fighter
     private void giveWeapon( int _wid )
     {
     	Constants c = new Constants( _wid );
+    	range = c.getRange();
     	health = c.getHealth();
     	attack = c.getAttack();
     	handattack = c.getHandattack();
@@ -394,6 +575,7 @@ public class Fighter
 public class Constants
 {
     private int wid ;
+    private int range ;
     private int health ;
     private int attack ;
     private int handattack ;
@@ -407,6 +589,7 @@ public class Constants
     public Constants( int _wid )
     {
         wid = _wid ;
+        range = 0 ;
         health = 0 ;
         attack = 0 ;
         handattack = 0 ;
@@ -420,6 +603,7 @@ public class Constants
         }
         else if ( wid == 1 ) // PikeMen
         {   
+        	range = 2 ;
             health = 300 ;
             attack = 60 ;
             handattack = attack ;
@@ -428,6 +612,7 @@ public class Constants
         }
         else if ( wid == 2 ) // Archers
         {
+        	range = 12 ;
             health = 130 ;
             attack = 20 ;
             handattack = 10 ;
@@ -436,6 +621,7 @@ public class Constants
         }
         else if ( wid == 3 ) // Cavalry
         {
+        	range = 3 ;
             health = 700 ;
             attack = 90 ;
             handattack = attack ;
@@ -452,6 +638,11 @@ public class Constants
     #endregion
     
     #region Getter Methods
+    
+    public int getRange( )
+    {
+        return range ;
+    }
     
     public int getHealth( )
     {
