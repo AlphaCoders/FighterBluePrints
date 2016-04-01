@@ -1,3 +1,101 @@
+// Contains IDEONE code
+
+using System;
+using System.Collections.Generic ; 
+
+public class Test
+{
+	public static void printer( SortedDictionary<int,Fighter> _allUnits )
+	{
+		foreach ( KeyValuePair<int,Fighter> entry in _allUnits )
+		{
+		    Console.WriteLine( entry.Value.ToString() );
+		}
+
+	}
+	
+	public static void gridprint( int[,,] _grid , int _gtime , SortedDictionary<int,Fighter> _allUnits )
+	{
+		Console.WriteLine("Printing Grid at time :"+_gtime);
+		String pad ; 
+		int u ;
+		int v ;
+		for ( int i = 0 ; i < _grid.GetLength(0) ; i++ )
+		{
+			for ( int j = 0 ; j < _grid.GetLength(1) ; j++ )
+			{
+				if ( _grid[i,j,0] == 0 ) 
+				{
+					pad = "...0" ; 
+				}
+				else 
+				{
+					pad = ""+_grid[i,j,0] ; 
+				}
+				
+				/*
+				v = _grid[i,j,1] ;
+				pad += "," ;
+				pad += v ;
+				u = (""+v).Length ;
+				for ( int k = 0 ; k < (3-u) ; k++ )
+				{
+					pad += ".";
+				}
+				*/
+				
+				if ( _grid[i,j,0] == 0 )
+				{
+					v = 0 ; 
+				}
+				else 
+				{
+					v = _allUnits[ _grid[i,j,0] ].health ;
+				}
+				pad += "," ;
+				pad += v ;
+				u = (""+v).Length ;
+				for ( int k = 0 ; k < (3-u) ; k++ )
+				{
+					pad += ".";
+				}
+				
+				Console.Write(  pad + " " );
+			}
+			Console.WriteLine();
+		}
+		Console.WriteLine("----------------------------------End at gtime:"+_gtime);
+		
+	}
+	
+	public static void Main()
+	{
+		Begin b = new Begin();
+		
+		//printer( b.allUnits );
+		gridprint( b.grid , b.gtime , b.allUnits );
+		
+		foreach ( KeyValuePair<int,Fighter> entry in b.allUnits )
+		{
+			if ( entry.Value.pid == 1 && entry.Value.x > 2 )
+			{
+		    	entry.Value.ex = 13 ;
+		    	entry.Value.ey = 1 ;
+		    	entry.Value.ez = 0 ; 
+			}
+		}
+		
+		int cycles = 9 ;
+		int limit = 10 + ( 40 * cycles ) ;
+		while ( limit-- > 0  )
+		{
+			b.Update();
+		}
+		
+		
+	}
+}
+
 
 public class Begin
 {
@@ -369,3 +467,257 @@ public class Begin
     
     #endregion
 }
+
+
+public class Fighter
+{
+	
+    #region Fighter Details
+    
+    public int id ;          // Unique ID
+    public int gid ;         // Group ID 
+    public int wid ;         // Weapon ID
+    public int pid ;         // Player ID
+    public int tid ;         // Team ID
+    public int x ;           // Fighters X Cor
+    public int y ;           // Fighters Y Cor
+    public int z ;           // Fighters Z Cor
+    public int range  ;      // Fighters Sight Range
+    public int health ;      // Health or Hitpoints
+    public int attack ;      // Weapon Attack
+    public int handattack ;  // Hand Attack
+    public int areaattack ;  // Area Attack
+    public int radius ;      // Area Attack Radius
+    public int speed ;       // Movement Speed
+    public int delay ;       // Delay betwen attacks
+    public int mode ;        // Idle[0] , Walk[1] , Attack[2] , Hurt[3] , Die[4]
+    public int angle ;       // Fighters angle along SkyToEarth Axis
+    
+    #endregion
+    
+    #region Enemy Details
+    
+    public int eid ;         // enemy whom the fighter is going to attack
+    public int egid ;        // enemy group which is fighter is going to attack
+    public int ex ;          // enemy X Cor
+    public int ey ;          // enemy Y Cor
+    public int ez ;          // enemy Z Cor
+    
+
+    
+    #endregion
+    
+    #region Constructors
+    
+    public Fighter( int _id , int _gid , int _wid , int _pid , int _x , int _y , int _z )
+    {
+		id = _id ;
+		gid = _gid ;
+		wid = _wid ;
+		pid = _pid ;
+		x = _x ;
+		y = _y ;
+		z = _z ;
+		mode = 0 ;
+		angle = 0 ;
+		giveWeapon( _wid );
+		eid = -1 ; 
+		egid = -1 ;
+		ex = -1 ;
+		ey = -1 ;
+		ez = -1 ;
+		tid = 1 ; // By default Team1
+		if ( _pid % 2 == 0 )
+		{
+			tid = 2 ; // All even pids to Team2
+		}
+    }
+    
+    #endregion
+    
+    #region Managing Methods
+    
+    private void giveWeapon( int _wid )
+    {
+    	Constants c = new Constants( _wid );
+    	range = c.getRange();
+    	health = c.getHealth();
+    	attack = c.getAttack();
+    	handattack = c.getHandattack();
+    	areaattack = c.getAreaattack();
+    	radius = c.getRadius();
+    	speed = c.getSpeed();
+    	delay = c.getDelay();
+    }
+    
+   
+    
+    public override String ToString()
+    {
+    	return String.Format(
+    		"     ID : {0} \t " +
+        //  "    GID : {1} \t " +
+    		"    WID : {2} \t " +
+    		"    PID : {3} \t " +
+    		"      X : {4} \t " +
+    		"      Y : {5} \t " +
+    	//  "      Z : {6} \t " +
+    		" HEALTH : {7} \t " +
+    		" ATTACK : {8} \t " +
+    	"",id,gid,wid,pid,x,y,z,health,attack);
+    }
+    
+    #endregion
+    
+}
+
+
+public class Constants
+{
+    private int wid ;
+    private int range ;
+    private int health ;
+    private int attack ;
+    private int handattack ;
+    private int areaattack ;
+    private int radius ;
+    private int speed ;
+    private int delay ;
+    
+    #region Constructors
+    
+    public Constants( int _wid )
+    {
+        wid = _wid ;
+        range = 0 ;
+        health = 0 ;
+        attack = 0 ;
+        handattack = 0 ;
+        areaattack = 0 ;
+        radius = 0 ;
+        speed = 0 ;
+        delay = 0 ;
+        if ( wid <= 0 )
+        {
+            return ; // Err Log
+        }
+        else if ( wid == 1 ) // PikeMen
+        {   
+        	range = 2 ;
+            health = 300 ;
+            attack = 60 ;
+            handattack = attack ;
+            speed = 5 ;
+            delay = 1 ;
+        }
+        else if ( wid == 2 ) // Archers
+        {
+        	range = 12 ;
+            health = 130 ;
+            attack = 20 ;
+            handattack = 10 ;
+            speed = 7 ;
+            delay = 5 ;
+        }
+        else if ( wid == 3 ) // Cavalry
+        {
+        	range = 3 ;
+            health = 700 ;
+            attack = 90 ;
+            handattack = attack ;
+            speed = 11 ;
+            delay = 1 ;
+        }
+        else 
+        {
+            return ; // Err Log
+        }
+ 
+    }
+    
+    #endregion
+    
+    #region Getter Methods
+    
+    public int getRange( )
+    {
+        return range ;
+    }
+    
+    public int getHealth( )
+    {
+        return health ;
+    }
+    
+    public int getAttack ()
+    {
+        return attack ;
+    }
+    
+    public int getHandattack ()
+    {
+        return handattack ;
+    }
+    
+    public int getAreaattack ()
+    {
+        return areaattack ;
+    }
+    
+    public int getRadius ()
+    {
+        return radius ;
+    }
+    
+    public int getSpeed ()
+    {
+        return speed ;
+    }
+    
+    public int getDelay()
+    {
+        return delay ;
+    }
+
+    #endregion
+
+}
+
+
+public class Arrow
+{
+    private int id ;              // Fighter id who fired Arrow
+    private int eid ;             // Target Enemy id 
+    private int dmg ;             // Damage value when Arrow hits target
+    private int ax ;              // Arrows X Cor
+    private int ay ;              // Arrows Y Cor
+    private int az ;              // Arrows Z Cor
+    private int angle ;           // Arrows rotation along SkyToEarth Axis ( theta )
+    private int upangle ;         // Arrows rotation wrt XY Plane and Z ( Phi )
+    
+    #region Constructors
+    
+    public Arrow( int _id , int _eid , int _dmg )
+    {
+        id = _id ;
+        eid = _eid ;
+        dmg = _dmg ;
+        // ax , ay , az should be derived from fighter class using dictionary
+        // initialize angle , upangle and process the path in Managing Methods section
+        // need parabolic trajectory managing methods here
+    }
+    
+    #endregion
+
+    #region Managing Methods
+
+    #endregion
+
+}
+
+
+
+
+
+
+

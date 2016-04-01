@@ -2,6 +2,7 @@
 public class Constants
 {
     private int wid ;
+    private int range ;
     private int health ;
     private int attack ;
     private int handattack ;
@@ -15,6 +16,7 @@ public class Constants
     public Constants( int _wid )
     {
         wid = _wid ;
+        range = 0 ;
         health = 0 ;
         attack = 0 ;
         handattack = 0 ;
@@ -28,6 +30,7 @@ public class Constants
         }
         else if ( wid == 1 ) // PikeMen
         {   
+        	range = 2 ;
             health = 300 ;
             attack = 60 ;
             handattack = attack ;
@@ -36,6 +39,7 @@ public class Constants
         }
         else if ( wid == 2 ) // Archers
         {
+        	range = 12 ;
             health = 130 ;
             attack = 20 ;
             handattack = 10 ;
@@ -44,8 +48,9 @@ public class Constants
         }
         else if ( wid == 3 ) // Cavalry
         {
+        	range = 3 ;
             health = 700 ;
-            attack = 150 ;
+            attack = 90 ;
             handattack = attack ;
             speed = 11 ;
             delay = 1 ;
@@ -60,6 +65,11 @@ public class Constants
     #endregion
     
     #region Getter Methods
+    
+    public int getRange( )
+    {
+        return range ;
+    }
     
     public int getHealth( )
     {
