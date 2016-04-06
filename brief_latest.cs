@@ -29,7 +29,7 @@ public class Test
             {
             	if (_grid[i, j, 0]==0)
             	{
-            		pad = "0,0,0" ;
+            		pad = "0,0,0,000" ;
             	}
             	else 
             	{
@@ -39,14 +39,12 @@ public class Test
 	                pad += _allUnits[_grid[i, j, 0]].wid ;
 	                pad += "," ;
 	                pad += _allUnits[_grid[i, j, 0]].mode ;
+	                pad += "," ;
+	                pad += _allUnits[_grid[i, j, 0]].health ;
             	}
-            	if ( j != _grid.GetLength(1) - 1 )
-            	{
-                	Console.Write(pad + "-");
-            	}
-            	else {
-            		Console.Write(pad );
-            	}
+            	
+                	Console.Write(pad + ".");
+            	
             }
             Console.WriteLine();
         }
@@ -110,6 +108,7 @@ public class Test
 
     public static void Main()
     {
+    	Console.WriteLine("------------------------------------------------------------------------------------------------------------------------------------------------------");
         Begin b = new Begin();
 
         //printer( b.allUnits );
@@ -255,8 +254,8 @@ public class Begin
         fastFactor = 1;
 
         allUnits = new SortedDictionary<int, Fighter>();
-        groundWidth = 9;
-        groundLength = 15;
+        groundWidth = 17 ;
+        groundLength = 18 ;
         grid = new int[groundLength, groundWidth, 2];
         allArrows = new SortedDictionary<int, Arrow>();
         // Here we must add our capital
@@ -264,21 +263,24 @@ public class Begin
 
 
         board =
-        "........." + // Player 1 
-        "........." +
-        "..a...aa." +
-        "........." +
-        "..ppppp.." +
-        "..ppppp.." +
-        "..ppppp.." +
-        "..ppppp.." +
-        "........." + // OLD BOARD
-        "........." +
-        "........." +
-        "........." +
-        "..eeeee.." +
-        "..eeeee.." +
-        "..eeeee.."   // Player 2 
+        "................." + // Player 1 
+        "................." +
+        "......a...aa....." +
+        "................." +
+        "......ppppp......" +
+        "......ppppp......" +
+        "......ppppp......" +
+        "......ppppp......" +
+        "................." + // OLD BOARD
+        "................." +
+        "......eeeee......" +
+        "......eeeee......" +
+        "................." +
+        "................." +
+        "................." +
+        "................." +
+        "................." +
+        "................." // Player 2 
         ;
 
 
